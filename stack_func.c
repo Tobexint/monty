@@ -7,7 +7,7 @@
 void _push(stack_t **stack, unsigned int line_number)
 {
 	stack_t *new;
-	char *arg;
+	char *arg = global.argument;
 	int push_arg;
 
 	push_arg = 0;

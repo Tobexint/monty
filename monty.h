@@ -38,6 +38,20 @@ typedef struct instruction_s
 	void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
+/**
+* struct help - argument for the current opcode
+* @data_struct: stack mode, stack (default) and queue
+* @argument: the arguments of the string
+*
+* Description: global structure used to pass data around the functions easily
+*/
+typedef struct help
+{
+	int data_struct;
+	char *argument;
+} help;
+help global;
+
 typedef void (*instruct_func)(stack_t **stack, unsigned int line_number);
 char *get_cmd(char *line);
 instruct_func exe_func(char *str);
