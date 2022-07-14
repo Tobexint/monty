@@ -1,29 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 #include "monty.h"
 /**
- * _add - adds top of stack and second top of stack
+ * swap -  swaps data from top to previous
+ * @stack: stack given by main
+ * @line_cnt: amount of lines
  *
- * @stack: pointer to linked list stack
- * @line_number: number of line opcode occurs on
+ * Return: void
  */
-void _add(stack_t **stack, unsigned int line_number)
+void swap(stack_t **stack, unsigned int line_cnt)
 {
-	if (*stack == NULL || (*stack)->next == NULL)
+	stack_t *tmp = NULL;
+	int tmp_n = 0;
+
+	if (!stack || !*stack || !((*stack)->next))
 	{
-		fprintf(stderr, "L%d: can't add, stack too short\n", line_number);
-		error_exit(stack);
+		fprintf(stderr, "L%d: can't swap, stack too short\n", line_cnt);
+		exit(EXIT_FAILURE);
 	}
-	(*stack)->next->n += (*stack)->n;
-	_pop(stack, line_number);
+	tmp = *stack;
+	tmp_n = tmp->n;
+	tmp->n = tmp_n;
+
+	tmp->n = tmp->next->n;
+	tmp->next->n = tmp_n;
 }
 
 /**
- * _nop - literally does nothing
- * @stack: pointer to the top of the stack
- * @line_number: the index of the current line
+ * nop -  does nothing
+ * @stack: doesnt matter
+ * @line_cnt : for nothing
  *
+ * Return: NOTHING
  */
-void _nop(__attribute__ ((unused))stack_t **stack,
-	  __attribute__ ((unused))unsigned int line_number)
+void nop(stack_t **stack, unsigned int line_cnt)
 {
+	(void) stack;
+	(void) line_cnt;
+}
 
+/**
+ * _add -  adds the first two nodes of the stack
+ * @stack: stack given by main
+ * @line_cnt: line counter
+ *
+ * Return: void
+ */
+void _add(stack_t **stack, unsigned int line_cnt)
+{
+	int result;
+
+	if (!stack || !*stack || !((*stack)->next))
+	{
+		fprintf(stderr, "L%d: can't add, stack too short\n", line_cnt);
+		exit(EXIT_FAILURE);
+	}
+
+	result = ((*stack)->next->n) + ((*stack)->n);
+	pop(stack, line_cnt); /*For top node*/
+	(*stack)->n = result;
 }

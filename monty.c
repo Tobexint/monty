@@ -1,22 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "monty.h"
-int status = 0;
-/**
- * main - driver function for monty program
- * @ac: int num of arguments
- * @av: opcode file
- * Return: 0
- */
-int main(int ac, char **av)
-{
-	stack_t *stack;
 
-	stack = NULL;
-	if (ac != 2)
+/**
+ * opcode - function in charge of running builtins
+ * @stack: stack given by main
+ * @str: string to compare
+ * @line_cnt: amount of lines
+ *
+ * Return: nothing
+ */
+void opcode(stack_t **stack, char *str, unsigned int line_cnt)
+{
+	int i = 0;
+
+	instruction_t op[] = INSTRUCTIONS;
+
+	if (!strcmp(str, "stack"))
 	{
-		fprintf(stderr, "USAGE: monty file\n");
-		error_exit(&stack);
+		global.data_struct = 1;
+		return;
 	}
-	read_file(av[1], &stack);
-	free_dlistint(stack);
-	return (0);
+	if (!strcmp(str, "queue"))
+	{
+		global.data_struct = 0;
+		return;
+	}
+
+	while (op[i].opcode)
+	{
+		if (strcmp(op[i].opcode, str) == 0)
+		{
+			op[i].f(stack, line_cnt);
+			return; /* if we found a match, run the function */
+		}
+		i++;
+	}
+	fprintf(stderr, "L%d: unknown instruction %s\n", line_cnt, str);
+	exit(EXIT_FAILURE);
 }

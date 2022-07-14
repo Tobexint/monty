@@ -1,88 +1,86 @@
-#define _GNU_SOURCE
+#define  _GNU_SOURCE
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include "monty.h"
+
+void file_error(char *argv);
+void error_usage(void);
+int status = 0;		/* global var declaration */
+
 /**
-* read_file - reads commands from file and executes them
-* @filename: file to be read from
-* @stack: stack pointer
-*
-* Return: void
-*/
-void read_file(char *filename, stack_t **stack)
+ * main - entry point
+ * @argv: list of arguments passed to our program
+ * @argc: amount of args
+ *
+ * Return: nothing
+ */
+int main(int argc, char **argv)
 {
+	FILE *file;
+	size_t buf_len = 0;
 	char *buffer = NULL;
-	char *line;
-	size_t buf_size = 0;
-	int line_count = 1;
-	instruct_func s;
-	int check;
-	int read;
-	FILE *file = fopen(filename, "r");
+	char *str = NULL;
+	stack_t *stack = NULL;
+	unsigned int line_cnt = 1;
 
-	if (file == NULL)
-	{
-		fprintf(stderr, "Error: Can't open file %s\n", filename);
-		error_exit(stack);
-	}
+	global.data_struct = 1;  /* struct defined in monty.h L58*/
+	if (argc != 2)
+		error_usage(); /* def in line 82 */
 
-	while ((read = getline(&buffer, &buf_size, file)) != -1)
+	file = fopen(argv[1], "r");
+
+	if (!file)
+		file_error(argv[1]);  /* def in line 68 */
+
+	while ((getline(&buffer, &buf_len, file)) != (-1))
 	{
-		line = get_cmd(buffer);
-		if (line == NULL || line[0] == '#')
+		if (status)
+			break;
+		if (*buffer == '\n')
 		{
-			line_count++;
+			line_cnt++;
 			continue;
 		}
-
-		s = exe_func(line);
-		if (s == NULL)
+		str = strtok(buffer, " \t\n");
+		if (!str || *str == '#')
 		{
-			fprintf(stderr, "L%d: unknown instruction %s\n", line_count, line);
-			error_exit(stack);
+			line_cnt++;
+			continue;
 		}
-		s(stack, line_count);
-		line_count++;
+		global.argument = strtok(NULL, " \t\n");
+		opcode(&stack, str, line_cnt);
+		line_cnt++;
 	}
 	free(buffer);
-	check = fclose(file);
-	if (check == -1)
-		exit(-1);
+	free_stack(stack);
+	fclose(file);
+	exit(EXIT_SUCCESS);
 }
 
 /**
- * exe_func -  checks opcode and returns the correct function
- * @str: the opcode
+ * file_error - prints file error message and exits
+ * @argv: argv given by main()
  *
- * Return: returns a function, or NULL on failure
+ * Desc: print msg if  not possible to open the file
+ * Return: nothing
  */
-instruct_func exe_func(char *str)
+void file_error(char *argv)
 {
-	int i = 0;
-	instruction_t op_int[] = {
-		{"push", _push}, {"pall", _pall},
-		{"pint", _pint}, {"pop", _pop},
-		{"swap", _swap}, {"add", _add},
-		{"nop", _nop}, {NULL, NULL},
-	};
-
-	while (op_int[i].f != NULL && strcmp(op_int[i].opcode, str) != 0)
-		i++;
-	return (op_int[i].f);
-
+	fprintf(stderr, "Error: Can't open file %s\n", argv);
+	exit(EXIT_FAILURE);
 }
 
 /**
- * get_cmd - parses a line for an opcode and arguments
- * @line: the line to be parsed
+ * error_usage - prints usage message and exits
  *
- * Return: returns the opcode or null on failure
+ * Desc: if user does not give any file or more than
+ * one argument to your program
+ *
+ * Return: nothing
  */
-char *get_cmd(char *line)
+void error_usage(void)
 {
-	char *op_code;
-
-	op_code = strtok(line, "\n ");
-
-	if (op_code == NULL)
-		return (NULL);
-	return (op_code);
+	fprintf(stderr, "USAGE: monty file\n");
+	exit(EXIT_FAILURE);
 }
