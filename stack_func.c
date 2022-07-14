@@ -1,4 +1,4 @@
-#include "main.h"
+#include "monty.h"
 /**
  * _push - push int to a stack
  * @stack: linked lists for monty stack

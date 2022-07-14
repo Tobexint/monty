@@ -1,4 +1,4 @@
-#include "main.h"
+#include "monty.h"
 /**
  * main - driver function for monty program
  * @ac: int num of arguments

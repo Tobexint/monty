@@ -1,4 +1,4 @@
-#include "main.h"
+#include "monty.h"
 
 /**
  * error_exit - frees the stack and exits due to erro
